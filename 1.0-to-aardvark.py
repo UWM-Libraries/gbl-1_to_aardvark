@@ -47,36 +47,36 @@ def check_required(data_dict):
         if req not in data_dict:
             print (f"Requirement {req} is not present...")
             
-        if req == "gbl_resourceClass_sm":
-            if "dc_type_s" not in data_dict:
-                print(f"No dc_type_s information found.")
-                data_dict["gbl_resourceClass_sm"] = [RESOURCE_CLASS_DEFAULT]
-            elif data_dict["dc_type_s"] == "Dataset":
-                data_dict["gbl_resourceClass_sm"] = ["Datasets"]
-                print(f"Replaced dc_type_s:Dataset with gbl_resourceClass_sm:Datasets")
-            elif data_dict["dc_type_s"] == "Image":
-                data_dict["gbl_resourceClass_sm"] = ["Imagery"]
-                print(f"Replaced dc_type_s:Dataset with gbl_resourceClass_sm:Imagery")
-            else:
-                data_dict["gbl_resourceClass_sm"] = [RESOURCE_CLASS_DEFAULT] # change if needed!
-                print(f"Replaced dc_type_s:Null with gbl_resourceClass_sm:{RESOURCE_CLASS_DEFAULT}")
+            if req == "gbl_resourceClass_sm":
+                if "dc_type_s" not in data_dict:
+                    print(f"No dc_type_s information found.")
+                    data_dict["gbl_resourceClass_sm"] = [RESOURCE_CLASS_DEFAULT]
+                elif data_dict["dc_type_s"] == "Dataset":
+                    data_dict["gbl_resourceClass_sm"] = ["Datasets"]
+                    print(f"Replaced dc_type_s:Dataset with gbl_resourceClass_sm:Datasets")
+                elif data_dict["dc_type_s"] == "Image":
+                    data_dict["gbl_resourceClass_sm"] = ["Imagery"]
+                    print(f"Replaced dc_type_s:Dataset with gbl_resourceClass_sm:Imagery")
+                else:
+                    data_dict["gbl_resourceClass_sm"] = [RESOURCE_CLASS_DEFAULT] # change if needed!
+                    print(f"Replaced dc_type_s:Null with gbl_resourceClass_sm:{RESOURCE_CLASS_DEFAULT}")
+                    
+            elif req == "dct_spatial_sm":
+                data_dict["dct_spatial_sm"] = [PLACE_DEFAULT]
+                print(f"Replaced dct_spatial_sm:Null with dct_spatial_sm:{PLACE_DEFAULT}")
                 
-        elif req == "dct_spatial_sm":
-            data_dict["dct_spatial_sm"] = [PLACE_DEFAULT]
-            print(f"Replaced dct_spatial_sm:Null with dct_spatial_sm:{PLACE_DEFAULT}")
-            
-        elif req == "gbl_mdModified_dt":
-            data_dict["gbl_mdModified_dt"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-            
-        elif req == "dct_publisher_sm":
-            print(f"No Publisher information found.")
-            if "dct_creator_sm" not in data_dict:
-                print(f"No Creator information found.")
-            elif data_dict["dct_creator_sm"] != "":
-                data_dict["dct_publisher_sm"] = data_dict["dct_creator_sm"]
-                print(f"Replaced dct_publisher_sm:Null with dct_publisher_sm:{data_dict['dct_creator_sm']}")
-            else:
-                continue
+            elif req == "gbl_mdModified_dt":
+                data_dict["gbl_mdModified_dt"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+                
+            elif req == "dct_publisher_sm":
+                print(f"No Publisher information found.")
+                if "dct_creator_sm" not in data_dict:
+                    print(f"No Creator information found.")
+                elif data_dict["dct_creator_sm"] != "":
+                    data_dict["dct_publisher_sm"] = data_dict["dct_creator_sm"]
+                    print(f"Replaced dct_publisher_sm:Null with dct_publisher_sm:{data_dict['dct_creator_sm']}")
+                else:
+                    continue
     return
 
 def remove_depricated(data_dict):
@@ -103,6 +103,10 @@ def schema_update(filepath):
         
         # Change the metadata type:
         data["gbl_mdVersion_s"] = "Aardvark"
+
+        # Remove geoblacklight_version
+        if "geoblacklight_version" in data:
+            data.pop("geoblacklight_version")
         
         # Check for required fields:
         check_required(data)
@@ -114,7 +118,7 @@ def schema_update(filepath):
     data = string2array(data)
 
     # Write updated JSON to a new folder
-    filepath_updated = dir_new_schema / file
+    filepath_updated = dir_new_schema / filepath.name
     with open(filepath_updated, 'w') as fw:
         j = json.dumps(data, indent=2)
         fw.write(j)
@@ -122,8 +126,27 @@ def schema_update(filepath):
 
 # Collect all JSON files in a list
 # Iterate the list to update metadata schema
-files = [x for x in os.listdir(dir_old_schema) if x.endswith('.json')]
-for file in files:
-    print(f'Executing {file} ...')
-    filepath = dir_old_schema / file
-    schema_update(filepath)
+def list_all_json(rootdir): # -> list[pathlib.Path]
+    '''List All .json files in a given dir'''
+
+    rootdir = Path(rootdir)
+    files = []
+    for path in sorted(rootdir.rglob("*.json")):
+        # skip layers.json
+        if path.name == 'layers.json':
+            print(f"Skipped {path.name}")
+            continue
+        else:
+            files.append(Path(path))
+
+    return files
+
+# Main function:
+def main_function():
+    files = list_all_json(dir_old_schema)
+    for file in files:
+        print(f'Executing {file} ...')
+        schema_update(file)
+
+if __name__ == '__main__':
+    main_function()
