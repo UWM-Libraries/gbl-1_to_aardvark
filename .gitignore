@@ -1,3 +1,6 @@
+# Development Temporary Ignore
+ArcGISPro_GBL-1_to_aardvark.py
+
 # Output files
 aardvark/*
 !aardvark/.gitkeep

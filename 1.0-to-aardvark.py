@@ -2,12 +2,15 @@ import json
 import csv
 import os
 
+from datetime import datetime
+from pathlib import Path
+
 # Manual changes before run
-dir_crosswalk = 'crosswalk.csv'
+dir_crosswalk = Path('crosswalk.csv')
 # add directory of JSON files in the 1.0 schema
-dir_old_schema = '1.0/'
+dir_old_schema = Path('1.0/')
 #add directory for new JSON files in the Aardvark schema
-dir_new_schema = 'aardvark/'
+dir_new_schema = Path('aardvark/')
 
 # Load the crosswalk.csv and make it a dictionary
 
@@ -44,7 +47,7 @@ def schema_update(filepath):
     data = string2array(data)
 
     # Write updated JSON to a new folder
-    filepath_updated = dir_new_schema + file
+    filepath_updated = dir_new_schema / file
     with open(filepath_updated, 'w', encoding='utf8') as fw:
         j = json.dumps(data, indent=2)
         fw.write(j)
@@ -65,6 +68,6 @@ def string2array(dict):
 files = [x for x in os.listdir(dir_old_schema) if x.endswith('.json')]
 for file in files:
     print(f'Executing {file} ...')
-    filepath = dir_old_schema + file
+    filepath = dir_old_schema / file
     schema_update(filepath)
 
