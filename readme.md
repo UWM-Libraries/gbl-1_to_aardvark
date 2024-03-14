@@ -48,3 +48,5 @@ to allow more robust directory structure
 (Part of [PR](https://github.com/OpenGeoMetadata/gbl-1_to_aardvark/pull/4))
 5. Removes `geoblacklight_version,gbl_mdVersion_s` from the crosswalk.
 (Part of [PR](https://github.com/OpenGeoMetadata/gbl-1_to_aardvark/pull/4))
+6. [Adds recursive searching](https://github.com/UWM-Libraries/gbl-1_to_aardvark/commit/4c80f4585e8855d175faf7f9208bf6bfa35e953a)
+using pathlib and glob.
