@@ -10,13 +10,13 @@ from pathlib import Path
 # Path to crosswalk definition
 dir_crosswalk = Path('crosswalk.csv')
 # add directory of JSON files in the 1.0 schema
-dir_old_schema = Path('1.0/')
+dir_old_schema = Path(r"S:\GeoBlacklight\project-files\opengeometadata_GBL-1\opengeometadata\edu.princeton")
 #add directory for new JSON files in the Aardvark schema
-dir_new_schema = Path('aardvark/')
+dir_new_schema = Path('aardvark/princeton/')
 
 #Default values
-RESOURCE_CLASS_DEFAULT = "Datasets"
-PLACE_DEFAULT = "Wisconsin"
+RESOURCE_CLASS_DEFAULT = "Maps"
+PLACE_DEFAULT = ""
 
 # Load the crosswalk.csv and make it a dictionary
 crosswalk = {}
@@ -81,7 +81,7 @@ def check_required(data_dict):
 
 def remove_deprecated(data_dict):
     # Remove the deprecated fields from the output Aardvark
-    deprecated = ["dc_type_s", "layer_geom_type_s", "dct_isPartOf_sm", "uw_supplemental_s", "uw_notice_s"]
+    deprecated = ["dc_type_s", "layer_geom_type_s", "dct_isPartOf_sm", "uw_supplemental_s", "uw_notice_s", "uuid"]
     for field in deprecated:
         if field in data_dict:
             data_dict.pop(field)
@@ -95,6 +95,9 @@ def schema_update(filepath):
     with open(filepath, encoding='utf8') as fr:
         # Load its content and make a new dictionary
         data = json.load(fr)
+
+        if data.__class__ != dict:
+            return
 
         # Loop over crosswalk to change dictionary keys
         for old_schema, new_schema in crosswalk.items():
@@ -118,7 +121,12 @@ def schema_update(filepath):
     data = string2array(data)
 
     # Write updated JSON to a new folder
-    filepath_updated = dir_new_schema / filepath.name
+    if filepath.name != "geoblacklight.json":
+        filepath_updated = dir_new_schema / filepath.name
+    else:
+        id_filepath = Path(f"{data['id']}.json")
+        filepath_updated = dir_new_schema / id_filepath
+
     with open(filepath_updated, 'w') as fw:
         j = json.dumps(data, indent=2)
         fw.write(j)
@@ -143,6 +151,9 @@ def list_all_json(rootdir): # -> list[pathlib.Path]
 
 # Main function:
 def main_function():
+    if not dir_new_schema.exists():
+        dir_new_schema.mkdir()
+
     files = list_all_json(dir_old_schema)
     for file in files:
         print(f'Executing {file} ...')
