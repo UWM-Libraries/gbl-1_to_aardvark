@@ -79,13 +79,13 @@ def check_required(data_dict):
                     continue
     return
 
-def remove_depricated(data_dict):
-    # Remove the depricated fields from the output Aardvark
-    depricated = ["dc_type_s", "layer_geom_type_s", "dct_isPartOf_sm", "uw_supplemental_s", "uw_notice_s"]
-    for field in depricated:
+def remove_deprecated(data_dict):
+    # Remove the deprecated fields from the output Aardvark
+    deprecated = ["dc_type_s", "layer_geom_type_s", "dct_isPartOf_sm", "uw_supplemental_s", "uw_notice_s"]
+    for field in deprecated:
         if field in data_dict:
             data_dict.pop(field)
-            print(f"Removed the depricated {field} field.")
+            print(f"Removed the deprecated {field} field.")
     
     return
 
@@ -111,8 +111,8 @@ def schema_update(filepath):
         # Check for required fields:
         check_required(data)
         
-        # Remove depricated fields
-        remove_depricated(data)
+        # Remove deprecated fields
+        remove_deprecated(data)
         
     # check for multi-valued fields - if so, convert its value to an array
     data = string2array(data)

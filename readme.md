@@ -24,8 +24,7 @@ but not in the crosswalk, it will include them unchanged in the new JSONs.
 This script only changes the field name and type for elements that can be directly crosswalked.
 Any fields that are not listed in crosswalk.csv will be carried over to the new Aardvark JSONS.
 This prevents data loss, but means that the new documents ~~will still include deprecated fields~~
-[Local updates include removal of known deprecated fields,
-but local fields from other institutions may still be included].
+include local fields from other institutions that aren't removed in the remove_deprecated() function.
 
 ## How to run
 
@@ -41,7 +40,7 @@ to allow more robust directory structure
 2. Adds new functions for dealing with common metadata issues and adds those functions as subfunctions of `schema_update()`:
     - `check_required()` checks for the presence of required fields (defined in an array) and warns if missing and
     tries to make logical replacements or fill with default values defined at the top of the script
-    - `remove_depricated()` will remove depreciated fields (defined in an array)
+    - `remove_deprecated()` will remove deprecated fields (defined in an array)
 3. Adds an output folder (./aardvark) with a .gitkeep file and ignores contents of that folder to avoid tracking output.
 (Part of [PR](https://github.com/OpenGeoMetadata/gbl-1_to_aardvark/pull/4))
 4. Force the `gbl_mdVersion_s` field to 'Aardvark' instead of crosswalking from the deprecated `geoblacklight_version` field.
